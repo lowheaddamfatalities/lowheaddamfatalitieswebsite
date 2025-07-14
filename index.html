@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Head Dam Fatalities Database</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="loading">
+        <div class="loading-text">Loading dam data...</div>
+    </div>
+
+    <header>
+        <h1>Low Head Dam Fatalities Database</h1>
+        <p>Documenting fatalities at low head dams across the country</p>
+    </header>
+
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-box">
+            <div id="totalFatalities" class="stat-number">0</div>
+            <div class="stat-label">TOTAL FATALITIES RECORDED</div>
+        </div>
+        <div class="stat-box">
+            <div id="fatalSites" class="stat-number">0</div>
+            <div class="stat-label">NUMBER OF FATAL SITES</div>
+        </div>
+        <div class="stat-box">
+            <div id="maxFatalities" class="stat-number">0</div>
+            <div class="stat-label">MAX. FATALITIES AT A SINGLE LOCATION</div>
+        </div>
+        <div class="stat-box">
+            <div id="siteWithMostFatalities" class="stat-number">-</div>
+            <div class="stat-label">SITE WITH THE MOST FATALITIES</div>
+        </div>
+        <div class="stat-box">
+            <div id="avgFatalitiesPerSite" class="stat-number">0</div>
+            <div class="stat-label">AVERAGE FATALITIES PER SITE</div>
+        </div>
+        <div class="stat-box">
+          <div id="lastUpdated" class="stat-number">-</div>
+          <div class="stat-label">DATA LAST UPDATED</div>
+        </div>
+    </div>
+
+    <div class="search-bar-wrapper">
+        <div class="search-row">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search by name of dam, location, river name, or incident description.">
+            </div>
+            <button class="add-incident-btn" onclick="openReportForm()">Report Incident</button>
+        </div>
+    </div> 
+    
+    <button id="advancedSearchBtn">Advanced Search ▼</button>
+    
+    <div class="advanced-search-panel" id="advancedSearchPanel">
+        <div class="advanced-search-header">
+            <h3>Advanced Search</h3>
+            <button class="close-btn" id="closeAdvancedSearch">×</button>
+        </div>
+        <div class="advanced-search-form">
+            <div class="search-group">
+                <label for="incidentStartDate">Incident Date Range:</label>
+                <div class="date-range-container">
+                    <input type="date" id="incidentStartDate" placeholder="Start Date">
+                    <span>to</span>
+                    <input type="date" id="incidentEndDate" placeholder="End Date">
+                </div>
+            </div>
+            <div class="search-group">
+                <label for="fatalityMin">Fatality Count:</label>
+                <div class="fatality-range-container">
+                    <input type="number" id="fatalityMin" placeholder="Min" min="0">
+                    <span>to</span>
+                    <input type="number" id="fatalityMax" placeholder="Max" min="0">
+                </div>
+            </div>
+            <div class="search-group">
+                <label for="keywordSearch">Keywords in Description:</label>
+                <input type="text" id="keywordSearch" placeholder="Search in incident descriptions...">
+            </div>
+            <div class="search-group">
+                <label for="stateFilter">Filter by State:</label>
+                <select id="stateFilter">
+                    <option value="">-- All States --</option>
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="AR">Arkansas</option>
+                    <option value="CA">California</option>
+                    <option value="CO">Colorado</option>
+                    <option value="CT">Connecticut</option>
+                    <option value="DE">Delaware</option>
+                    <option value="FL">Florida</option>
+                    <option value="GA">Georgia</option>
+                    <option value="HI">Hawaii</option>
+                    <option value="ID">Idaho</option>
+                    <option value="IL">Illinois</option>
+                    <option value="IN">Indiana</option>
+                    <option value="IA">Iowa</option>
+                    <option value="KS">Kansas</option>
+                    <option value="KY">Kentucky</option>
+                    <option value="LA">Louisiana</option>
+                    <option value="ME">Maine</option>
+                    <option value="MD">Maryland</option>
+                    <option value="MA">Massachusetts</option>
+                    <option value="MI">Michigan</option>
+                    <option value="MN">Minnesota</option>
+                    <option value="MS">Mississippi</option>
+                    <option value="MO">Missouri</option>
+                    <option value="MT">Montana</option>
+                    <option value="NE">Nebraska</option>
+                    <option value="NV">Nevada</option>
+                    <option value="NH">New Hampshire</option>
+                    <option value="NJ">New Jersey</option>
+                    <option value="NM">New Mexico</option>
+                    <option value="NY">New York</option>
+                    <option value="NC">North Carolina</option>
+                    <option value="ND">North Dakota</option>
+                    <option value="OH">Ohio</option>
+                    <option value="OK">Oklahoma</option>
+                    <option value="OR">Oregon</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="RI">Rhode Island</option>
+                    <option value="SC">South Carolina</option>
+                    <option value="SD">South Dakota</option>
+                    <option value="TN">Tennessee</option>
+                    <option value="TX">Texas</option>
+                    <option value="UT">Utah</option>
+                    <option value="VT">Vermont</option>
+                    <option value="VA">Virginia</option>
+                    <option value="WA">Washington</option>
+                    <option value="WV">West Virginia</option>
+                    <option value="WI">Wisconsin</option>
+                    <option value="WY">Wyoming</option>
+                </select>
+            </div>
+            <div class="search-group">
+                <label for="riverNameSearch">Filter by River Name:</label>
+                <input type="text" id="riverNameSearch" placeholder="Enter river name...">
+            </div>
+            <div class="search-buttons">
+                <button class="search-btn" id="applyAdvancedSearch">Apply Filters</button>
+                <button class="reset-btn" id="resetAdvancedSearch">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="active-filters" id="activeFilters">
+        <!-- Active filters will appear here -->
+    </div>
+    
+    <div class="sort-controls">
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy">
+            <option value="name">Name of Dam</option>
+            <option value="state">State</option>
+            <option value="fatalities">Fatalities </option>
+            <option value="river">River</option>
+        </select>
+    </div>
+        
+    <div class="dam-list" id="damList">
+        <!-- Dam list items will be populated here -->
+    </div>
+
+    <div id="paginationControls"></div>
+
+    <div style="text-align: center; margin-top: 40px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <h2 style="margin-bottom: 20px; color: #333;">Want to learn more about low head dams?</h2>
+    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px;">
+        <a href="https://www.asce.org/communities/institutes-and-technical-groups/environmental-and-water-resources-institute/national-inventory-of-low-head-dams" target="_blank">
+            <button class="add-incident-btn">ASCE Resources</button>
+        </a>
+        <a href="https://www.damsafety.org/killer-in-our-rivers" target="_blank">
+            <button class="add-incident-btn">Association of State Dam Officials Resources</button>
+        </a>
+        <a href="https://krcproject.groups.et.byu.net/index.php" target="_blank">
+            <button class="add-incident-btn">BYU Low Head Dam Project</button>
+        </a>
+    </div>
+</div>
+
+    <footer>
+        <p>The Low Head Dam Fatalities Database is a project from Brigham Young University to document the dangers of lowhead dams. Awknowledgments: Dr. Rollin Hotchkiss as head of the project, John Guymon for originating the idea of the website, Ed Kern for creating the original version of this website, Dr. Bruce Tschantz for his data on incidents at the dams, Charlie Walbridge for the data from the American Whitewater Association, Dr. Riley Hales and Dr. Dan Ames for their help in the development of this website. Please email Paige at pgordi@byu.edu if there are any false or inappropriate entries. Website developed by Paige Gordichuk.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
