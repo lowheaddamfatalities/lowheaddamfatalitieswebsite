@@ -36,7 +36,7 @@ The Low Head Dam Fatalities Site is a web application designed to raise awarenes
     2. Google Sheet
       Access the google sheet and make a copy on your google account.
       
-    2. Google Apps Script
+    3. Google Apps Script
        Access the google apps script and make a copy on your google account.
        In the getAllData() function, replace the placeholder spreadsheet ID with the ID of your copy of the google sheet.   
        You can find this ID in the sheet’s URL.
@@ -44,12 +44,7 @@ The Low Head Dam Fatalities Site is a web application designed to raise awarenes
        Allow google to access the spreadsheet.
        Copy the web app URL from the deployment page.
        Navigate to the scripts.js file in the repository.  
-       Under the data layer, replace "DATA_URL" with your web app URL.
-       
-    3. Clone the repository
-        Follow this link for a tutorial:
-        https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
-        In the scripts.js file, replace the DATA_URL with your 
+       Under the data layer, replace "DATA_URL" with your web app URL. 
         
     4. Launch the website through Github
         Under settings, navigate to "Pages"
@@ -58,8 +53,8 @@ The Low Head Dam Fatalities Site is a web application designed to raise awarenes
         Save
         
     5. Access the Application
-        Open your browser and navigate to https://[your github username].github.io/LowHeadDamFatalitiesTestSite/
-        The application will automatically load and fetch dam data.
+        Open your browser and navigate to https://[your github username].github.io/LowHeadDamFatalitieswebsite/
+        The application will automatically load and fetch the data.
 
 
 ## File Structure 
