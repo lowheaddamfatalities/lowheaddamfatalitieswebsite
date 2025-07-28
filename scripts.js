@@ -23,6 +23,7 @@
             // Create a reverse map from abbreviations to full names
                     const reverseStateMap = Object.fromEntries(Object.entries(stateMap).map(([name, abbr]) => [abbr.toLowerCase(), name])
                 );
+         
 
             // Private methods
             async function fetchData() {
