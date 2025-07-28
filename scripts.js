@@ -3,7 +3,7 @@
             // Private variables
             let damData = [];
             let metaData = {};
-            const DATA_URL = "https://script.google.com/macros/s/AKfycbw_hPDaHQ-oV-xagpOAMQwbA66Wlh-YabjlK7fML2f8tT7vdCHtk_4LOPOU4oQ-H68Zdw/exec";
+            const DATA_URL = "https://script.google.com/macros/s/AKfycbyVY6b4508P7-WseObKIs-SXmdtldimdDQib09_F6CFikpYGiLeQRnjoT4dGkMHjUIn1w/exec";
             const stateMap = {
                     'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
                     'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
@@ -338,23 +338,19 @@
                 <div class="incident-description">${incident.description}</div>
                 `;
                  // Add validation link if available - check webaddress first, then file
-                   if (incident.validation_webaddress || incident.validation_file) {
-                    cardHtml += `<div class="incident-validation">`;
+                   if (incident.verification_webaddress || incident.verification_file) {
+                      cardHtml += `<div class="incident-validation">`;
                 
-                    if (incident.validation_webaddress) {
-                        cardHtml += `
-                        <a href="${incident.validation_webaddress}" target="_blank">Web Source</a>
-                        `;
-                    }
-                
-                    if (incident.validation_file) {
-                        cardHtml += `
-                        <a href="assets/validation_uploads/${incident.validation_file}" target="_blank">File Source</a>
-                        `;
-                    }
-                
-                    cardHtml += `</div>`;
-                }
+                      if (incident.verification_webaddress) {
+                          cardHtml += `<a href="${incident.verification_webaddress}" target="_blank">Web Source</a>`;
+                      }
+                  
+                      if (incident.verification_file) {
+                          cardHtml += `<a href="assets/validation_uploads/${incident.verification_file}" target="_blank">File Source</a>`;
+                      }
+                  
+                      cardHtml += `</div>`;
+                  }
 
                 // Append image if available
                 if (incident.image && incident.image !== 'null' && incident.image.trim() !== '') {
