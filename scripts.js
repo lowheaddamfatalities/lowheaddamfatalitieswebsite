@@ -337,9 +337,9 @@
                 <div class="incident-fatalities">${incident.fatalities} ${incident.fatalities === 1 ? 'fatality' : 'fatalities'}</div>
                 <div class="incident-description">${incident.description}</div>
                 `;
-                 // Add validation link if available - check webaddress first, then file
+                 // Add verification link if available - check webaddress first, then file
                    if (incident.verification_webaddress || incident.verification_file) {
-                      cardHtml += `<div class="incident-validation">`;
+                      cardHtml += `<div class="incident-verification">`;
                 
                       if (incident.verification_webaddress) {
                           cardHtml += `<a href="${incident.verification_webaddress}" target="_blank">Web Source</a>`;
