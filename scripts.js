@@ -676,6 +676,7 @@ return null;
             };
         })();
 // -------------------- STATE TOTALS CONTROLLER --------------------
+
 const StateTotalsController = (function() {
     let isVisible = false;
     
