@@ -225,8 +225,59 @@
 },    
 
                 // Utility function exposed for date parsing elsewhere
-                parseDateString: parseDateString
-            };
+                parseDateString: parseDateString,
+             
+               getStateTotals: function() {
+        const stateTotals = new Map();
+        
+        damData.forEach(dam => {
+            const state = dam.state || 'Unknown';
+            const stateKey = state.toUpperCase();
+            
+            if (stateTotals.has(stateKey)) {
+                const current = stateTotals.get(stateKey);
+                stateTotals.set(stateKey, {
+                    ...current,
+                    totalSites: current.totalSites + 1,
+                    totalFatalities: current.totalFatalities + dam.fatalities,
+                    totalIncidents: current.totalIncidents + (dam.incidents ? dam.incidents.length : 0),
+                    sites: [...current.sites, dam]
+                });
+            } else {
+                stateTotals.set(stateKey, {
+                    state: state,
+                    stateCode: stateKey,
+                    totalSites: 1,
+                    totalFatalities: dam.fatalities,
+                    totalIncidents: dam.incidents ? dam.incidents.length : 0,
+                    sites: [dam]
+                });
+            }
+        });
+
+        // Convert to array and calculate averages
+        return Array.from(stateTotals.values())
+            .map(stateData => ({
+                ...stateData,
+                avgFatalitiesPerSite: stateData.totalSites > 0 ? 
+                    (stateData.totalFatalities / stateData.totalSites).toFixed(1) : '0.0',
+                avgFatalitiesPerIncident: stateData.totalIncidents > 0 ? 
+                    (stateData.totalFatalities / stateData.totalIncidents).toFixed(1) : '0.0'
+            }))
+            .sort((a, b) => b.totalFatalities - a.totalFatalities);
+    },
+
+    getStateNames: function() {
+        const states = new Set();
+        damData.forEach(dam => {
+            if (dam.state && dam.state.trim() !== '') {
+                states.add(dam.state);
+            }
+        });
+        return Array.from(states).sort();
+    }
+};
+
         })();
 
         // -------------------- UI LAYER --------------------
@@ -624,6 +675,174 @@ return null;
                 }
             };
         })();
+// -------------------- STATE TOTALS CONTROLLER --------------------
+const StateTotalsController = (function() {
+    let isVisible = false;
+    
+    // DOM elements
+    const elements = {
+        toggleButton: null,
+        container: null,
+        tableContainer: null,
+        sortSelector: null
+    };
+
+    function createStateTotalsHTML() {
+        return `
+        <div id="stateTotalsContainer" class="state-totals-container" style="display: none;">
+            <div class="state-totals-header">
+                <h3>Fatalities by State</h3>
+                <div class="state-totals-controls">
+                    <select id="stateTotalsSortBy" class="form-control">
+                        <option value="fatalities">Sort by Total Fatalities</option>
+                        <option value="sites">Sort by Number of Sites</option>
+                        <option value="incidents">Sort by Total Incidents</option>
+                        <option value="avgPerSite">Sort by Avg Fatalities/Site</option>
+                        <option value="state">Sort by State Name</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="stateTableContainer" class="state-table-container">
+                <table class="state-totals-table">
+                    <thead>
+                        <tr>
+                            <th>State</th>
+                            <th>Total Fatalities</th>
+                            <th>Fatal Sites</th>
+                            <th>Total Incidents</th>
+                            <th>Avg Fatalities/Site</th>
+                            <th>Avg Fatalities/Incident</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stateTotalsTableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        `;
+    }
+
+     function initializeElements() {
+        // Get the pre-placed button from HTML
+        elements.toggleButton = document.getElementById('stateTotalsToggle');
+        
+        // Show the button now that JavaScript has loaded
+        elements.toggleButton.style.display = 'block';
+        
+        // Create and insert the state totals container
+        const buttonContainer = document.querySelector('.state-totals-button-container');
+        buttonContainer.insertAdjacentHTML('afterend', createStateTotalsHTML());
+
+        // Cache remaining elements
+        elements.container = document.getElementById('stateTotalsContainer');
+        elements.tableContainer = document.getElementById('stateTableContainer');
+        elements.sortSelector = document.getElementById('stateTotalsSortBy');
+
+        setupEventListeners();
+    }
+
+    function setupEventListeners() {
+        // Toggle visibility
+        elements.toggleButton.addEventListener('click', function() {
+            isVisible = !isVisible;
+            elements.container.style.display = isVisible ? 'block' : 'none';
+            this.innerHTML = isVisible ? 'Hide State Totals ▲' : 'Show State Totals ▼';
+            
+            if (isVisible) {
+                renderStateTotals();
+            }
+        });
+
+        // Sort change
+        elements.sortSelector.addEventListener('change', function() {
+            renderStateTotals();
+        });
+    }
+
+    function renderStateTotals() {
+        const stateTotals = DataService.getStateTotals();
+        const sortBy = elements.sortSelector.value;
+        
+        // Sort data
+        const sortedData = [...stateTotals].sort((a, b) => {
+            switch(sortBy) {
+                case 'fatalities':
+                    return b.totalFatalities - a.totalFatalities;
+                case 'sites':
+                    return b.totalSites - a.totalSites;
+                case 'incidents':
+                    return b.totalIncidents - a.totalIncidents;
+                case 'avgPerSite':
+                    return parseFloat(b.avgFatalitiesPerSite) - parseFloat(a.avgFatalitiesPerSite);
+                case 'state':
+                    return a.state.localeCompare(b.state);
+                default:
+                    return b.totalFatalities - a.totalFatalities;
+            }
+        });
+
+        // Render table
+        const tableBody = document.getElementById('stateTotalsTableBody');
+        tableBody.innerHTML = '';
+
+        sortedData.forEach(stateData => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="state-name">${stateData.state}</td>
+                <td class="fatalities-count">${stateData.totalFatalities}</td>
+                <td class="sites-count">${stateData.totalSites}</td>
+                <td class="incidents-count">${stateData.totalIncidents}</td>
+                <td class="avg-fatalities">${stateData.avgFatalitiesPerSite}</td>
+                <td class="avg-incidents">${stateData.avgFatalitiesPerIncident}</td>
+                <td class="actions">
+                    <button onclick="StateTotalsController.filterByState('${stateData.stateCode}')" 
+                            class="filter-state-btn">
+                        View Sites
+                    </button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+
+    function filterByState(stateCode) {
+        // Use existing search functionality to filter by state
+        const DOM = UIController.getDOMElements();
+        DOM.searchInput.value = stateCode;
+        
+        // Trigger search
+        const event = new Event('input', { bubbles: true });
+        DOM.searchInput.dispatchEvent(event);
+        
+        // Scroll to results
+        DOM.damList.scrollIntoView({ behavior: 'smooth' });
+        
+        // Optionally hide state totals to focus on results
+        if (isVisible) {
+            elements.toggleButton.click();
+        }
+    }
+
+    return {
+        initialize: function() {
+            initializeElements();
+        },
+        
+        filterByState: function(stateCode) {
+            filterByState(stateCode);
+        },
+        
+        refresh: function() {
+            if (isVisible) {
+                renderStateTotals();
+            }
+        }
+    };
+})();
 
         // -------------------- PAGINATION SUPPORT --------------------
         const PaginationController = (function() {
@@ -975,6 +1194,9 @@ return null;
                         // Setup event listeners
                         setupEventListeners();
 
+                         // Initialize state totals
+                        StateTotalsController.initialize();
+
                         // Update UI state
                         uiCtrl.hideLoading();
                         uiCtrl.updateLastUpdated(dataService.getMeta()?.lastUpdated);
@@ -1026,6 +1248,7 @@ showDamDetails: function(damId) {
 
         // Make AppController globally accessible for the "View Incidents" button in popups
         window.AppController = AppController;
+        window.StateTotalsController = StateTotalsController;
 
         // Open the Google Form for reporting incidents
         function openReportForm() {
