@@ -691,7 +691,7 @@ const StateTotalsController = (function() {
         return `
         <div id="stateTotalsContainer" class="state-totals-container" style="display: none;">
             <div class="state-totals-header">
-                <h3>Fatalities by State</h3>
+                <h3>Totals by State</h3>
                 <div class="state-totals-controls">
                     <select id="stateTotalsSortBy" class="form-control">
                         <option value="fatalities">Sort by Total Fatalities</option>
