@@ -1,4 +1,4 @@
-      * {
+   * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -39,7 +39,7 @@
             background-color: white;
             padding: 20px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
@@ -62,6 +62,138 @@
             color: #555;
             font-size: 0.9em;
         }
+
+.state-totals-container {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+     margin-top: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.state-totals-button-container { 
+     display: block;
+     padding-left: 0px;
+     margin-bottom: 15px; 
+     width: 100%; 
+}
+
+.state-totals-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.state-totals-header h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.state-totals-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.state-totals-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.state-totals-table th {
+    background: #34495e;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.state-totals-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.state-totals-table tr:hover {
+    background: #f5f5f5;
+}
+
+#stateTotalsToggle {
+    background: none;
+    border: none;
+    color: #3498db;  /* Same as advanced search link */
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    transition: color 0.3s;
+}
+
+#stateTotalsToggle:hover {
+    color: #2980b9;
+}
+
+#stateTotalsToggle.open {
+    color: #2980b9;
+}
+.filter-state-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.filter-state-btn:hover {
+    background: #2980b9;
+}
+
+.state-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.fatalities-count {
+    font-weight: 600;
+    color: #e74c3c;
+}
+
+.state-totals-toggle-btn:hover {
+    background: #34495e !important;
+}
+
+@media (max-width: 768px) {
+    .state-totals-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .state-totals-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .state-totals-table {
+        font-size: 14px;
+    }
+    
+    .state-totals-table th,
+    .state-totals-table td {
+        padding: 8px 6px;
+    }
+}
       
         .search-bar-wrapper {
             display: flex;
