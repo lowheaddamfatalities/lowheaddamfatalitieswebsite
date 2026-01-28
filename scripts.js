@@ -3,7 +3,7 @@
             // Private variables
             let damData = [];
             let metaData = {};
-            const DATA_URL = "https://script.google.com/macros/s/AKfycbyVY6b4508P7-WseObKIs-SXmdtldimdDQib09_F6CFikpYGiLeQRnjoT4dGkMHjUIn1w/exec";
+            const DATA_URL = "https://script.google.com/macros/s/AKfycbxrBr0wkz6A8AJBoZeY1gN0a3Kgec8iVgFNMgiA-6u3O6zuyXfuQnD5M1_FaIoBQdauxg/exec";
             const stateMap = {
                     'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
                     'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
@@ -394,11 +394,11 @@
                       cardHtml += `<div class="incident-verification">`;
                 
                       if (incident.verification_webaddress) {
-                          cardHtml += `<a href="${incident.verification_webaddress}" target="_blank">Web Source</a>`;
+                          cardHtml += `<div><a href="${incident.verification_webaddress}" target="_blank">Web Source</a>`;
                       }
                   
                       if (incident.verification_file) {
-                          cardHtml += `<a href="assets/verification_uploads/${incident.verification_file}" target="_blank">File Source</a>`;
+                          cardHtml += `<div><a href="assets/verification_uploads/${incident.verification_file}" target="_blank">File Source</a>`;
                       }
                   
                       cardHtml += `</div>`;
@@ -676,7 +676,6 @@ return null;
             };
         })();
 // -------------------- STATE TOTALS CONTROLLER --------------------
-
 const StateTotalsController = (function() {
     let isVisible = false;
     
