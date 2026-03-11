@@ -1,0 +1,73 @@
+/* style.css */
+
+/* General Page Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    color: #222;
+}
+
+header {
+    background: #1e4d7b;
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.tagline-img {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    margin-top: 0.5rem;
+}
+
+section {
+    padding: 2rem 1rem;
+    max-width: 900px;
+    margin: auto;
+}
+
+h2 {
+    margin-bottom: 1rem;
+}
+
+/* Email Signup */
+.email-signup form {
+    display: flex;
+    gap: 1rem;
+    max-width: 500px;
+}
+
+.email-signup input {
+    flex: 1;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.email-signup button {
+    padding: 0.7rem 1.5rem;
+    background: #1e4d7b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Products */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.product {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0
+
+
