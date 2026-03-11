@@ -1,4 +1,4 @@
- // -------------------- DATA LAYER --------------------
+// -------------------- DATA LAYER --------------------
         const DataService = (function() {
             // Private variables
             let damData = [];
@@ -322,7 +322,7 @@
     damHeader.className = 'dam-header';
     const damInfo = document.createElement('div');
     damInfo.innerHTML = `
-      <div class="dam-name"> ${dam.name}${dam.River_name && dam.River_name.trim() !== '' ? ' - ' + dam.River_name : ''} </div>
+      <div class="dam-name"> ${dam.name}${dam.Removed === 'yes' ? ' <span style="color: #d32f2f; font-weight: bold;">[REMOVED]</span>' : ''}${dam.River_name && dam.River_name.trim() !== '' ? ' - ' + dam.River_name : ''} </div>
         <div class="dam-location"> ${dam.location}${dam.county ? ' - ' + dam.county : ''} </div>
     <div class="dam-fatalities"> ${dam.fatalities} ${dam.fatalities === 1 ? 'fatality' : 'fatalities'} </div>
     `;
@@ -461,7 +461,7 @@
 
             function createPopupContent(dam) {
                 let content = `<div class="marker-popup">
-                <h3>${dam.name}</h3>`;
+                <h3>${dam.name}${dam.Removed ? ' <span style="color: #d32f2f; font-weight: bold;">[REMOVED]</span>' : ''}</h3>`;
                 if (dam.imageUrl && dam.imageUrl !== 'null' && dam.imageUrl.trim() !== '') {
                     content += `<div class="popup-image" id="popup-image-${dam.id}"></div>`;
                 }
@@ -579,10 +579,51 @@ return null;
                         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }).addTo(map);
 
+                    // Add legend control
+                    this.addLegend();
+
                     return map;
                 },
 
-                addMarkers: function(dams, popupContentCallback, markerClickCallback) {
+                addLegend: function() {
+                    const legend = L.control({ position: 'bottomright' });
+
+                    legend.onAdd = function(map) {
+                        const div = L.DomUtil.create('div', 'map-legend');
+                        div.innerHTML = `
+                            <div class="legend-title">Dam Status</div>
+                            <div class="legend-item">
+                                <label>
+                                    <input type="checkbox" id="showActive" checked>
+                                    <img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" width="15" height="24">
+                                    Active Dams
+                                </label>
+                            </div>
+                            <div class="legend-item">
+                                <label>
+                                    <input type="checkbox" id="showRemoved" checked>
+                                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png" width="15" height="24">
+                                    Removed Dams
+                                </label>
+                            </div>
+                        `;
+                        return div;
+                    };
+
+                    legend.addTo(map);
+
+                    // Add event listeners for checkboxes
+                    setTimeout(() => {
+                        document.getElementById('showActive').addEventListener('change', function() {
+                            MapController.filterMarkersByStatus();
+                        });
+                        document.getElementById('showRemoved').addEventListener('change', function() {
+                            MapController.filterMarkersByStatus();
+                        });
+                    }, 100);
+                },
+
+addMarkers: function(dams, popupContentCallback, markerClickCallback) {
     // Clear any existing markers
     markers.forEach(marker => marker.remove());
     markers = [];
@@ -594,19 +635,48 @@ return null;
         // Skip if lat/lng are not valid numbers
         if (isNaN(lat) || isNaN(lng)) {
             console.warn(`Skipping dam with invalid coordinates:`, dam);
-            return; // Skips to the next iteration correctly
+            return;
         }
 
-        const marker = L.marker([lat, lng])
-            .addTo(map)
-            .bindPopup(popupContentCallback(dam));
+        let marker;
+        
+        // Check if dam is removed
+        if (dam.Removed === 'yes') {
+            // Create custom gray icon matching Leaflet's default style
+            const removedIcon = L.divIcon({
+                className: 'custom-marker-removed',
+                html: `
+                    <div style="position: relative; width: 25px; height: 41px;">
+                        <img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" 
+                             style="width: 25px; height: 41px; filter: grayscale(100%) brightness(1.2);">
+                        <!-- Red circle with slash centered on top -->
+                        <svg width="18" height="18" viewBox="0 0 18 18" 
+                             style="position: absolute; top: 2px; left: 50%; transform: translateX(-50%);" 
+                             xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="9" cy="9" r="8" fill="white" stroke="#d32f2f" stroke-width="2"/>
+                            <line x1="3" y1="3" x2="15" y2="15" stroke="#d32f2f" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                `,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            marker = L.marker([lat, lng], { icon: removedIcon }).addTo(map);
+        } else {
+            // Use default blue Leaflet marker for active dams
+            marker = L.marker([lat, lng]).addTo(map);
+        }
 
+        marker.bindPopup(popupContentCallback(dam));
         marker.damId = dam.id;
+        marker.isRemoved = dam.Removed === 'yes';
         markers.push(marker);
 
         // Marker click behavior
         marker.on('click', function() {
-            markerClickCallback(dam.id, false); // Pass false to not expand
+            markerClickCallback(dam.id, false);
 
             // Lazy-load image
             setTimeout(() => {
@@ -631,9 +701,26 @@ return null;
 },
 
 
-                filterMarkers: function(visibleDamIds) {
+               filterMarkers: function(visibleDamIds) {
                     markers.forEach(marker => {
                         if (visibleDamIds.includes(marker.damId)) {
+                            if (!map.hasLayer(marker)) {
+                                marker.addTo(map);
+                            }
+                        } else {
+                            marker.remove();
+                        }
+                    });
+                },
+
+                filterMarkersByStatus: function() {
+                    const showActive = document.getElementById('showActive')?.checked ?? true;
+                    const showRemoved = document.getElementById('showRemoved')?.checked ?? true;
+
+                    markers.forEach(marker => {
+                        const shouldShow = (marker.isRemoved && showRemoved) || (!marker.isRemoved && showActive);
+                        
+                        if (shouldShow) {
                             if (!map.hasLayer(marker)) {
                                 marker.addTo(map);
                             }
