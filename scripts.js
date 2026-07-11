@@ -1276,14 +1276,16 @@ const StateTotalsController = (function() {
                         mapCtrl.initialize(DOM.map);
 
                         // Add markers to map
-                        mapCtrl.addMarkers(
-                            dataService.getData(),
-                            uiCtrl.createPopupContent,
-                            this.highlightDam
-                        );
+                      mapCtrl.addMarkers(
+    dataService.getData(),
+    uiCtrl.createPopupContent,
+    this.highlightDam
+);
 
-                        // Calculate and display statistics
-                        const stats = calculateStatistics();
+mapCtrl.addLegend();
+
+// Calculate and display statistics
+const stats = calculateStatistics();
                         uiCtrl.updateStatistics(stats);
 
                         // Populate dam list with sorted dams
