@@ -570,20 +570,32 @@ return null;
 
             // Public API
             return {
-                initialize: function(mapElement) {
-                    // Center the map on the US
-                    map = L.map(mapElement).setView([39.8283, -98.5795], 4);
+               initialize: function(mapElement) {
+    // Center the map on the US
+    map = L.map(mapElement).setView([39.8283, -98.5795], 4);
 
-                    // Add the tile layer (OpenStreetMap)
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    }).addTo(map);
+    // Street map layer (default)
+    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-                    // Add legend control
-                    this.addLegend();
+        // Satellite layer (USGS)
+    const satelliteLayer = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles courtesy of the U.S. Geological Survey'
+    });
 
-                    return map;
-                },
+    // Layer control - top left, stacks below zoom control automatically
+    L.control.layers(
+        {
+            "Street Map": streetLayer,
+            "Satellite": satelliteLayer
+        },
+        null,
+        { position: 'topleft' }
+    ).addTo(map);
+
+    return map;
+},
 
                 addLegend: function() {
                     const legend = L.control({ position: 'bottomright' });
